@@ -39,8 +39,9 @@ module Actions
       end
 
       def live_output
-        return unless output[:proxy_output]
-        output[:proxy_output].map do |out|
+        proxy_output = output[:proxy_output] || load_live_output
+        #require 'pry'; binding.pry if proxy_output.present?
+        proxy_output.map do |out|
           output_data = out['output']['data']
           invocation_data = output_data['invocation']
           if invocation_data['module_name'] == 'setup'
@@ -48,8 +49,15 @@ module Actions
           else
             result = output_data.except('invocation', 'verbose_always')
           end
-          out.merge(:output => "#{out['output']['category']}: #{invocation_data['module_name']} #{invocation_data['module_args']}: #{result}")
+          out.merge('output' => "#{out['output']['category']}: #{invocation_data['module_name']} #{invocation_data['module_args']}: #{result}")
         end
+      end
+
+      def load_live_output
+        run_ansible_job = task.parent_task.sub_tasks.where(label: "Actions::RemoteExecution::RunAnsibleJob").first.main_action
+        live_output = run_ansible_job.live_output
+        return [] unless live_output
+        live_output.select { |o| o["output_type"] == 'event' && o['output']['host'] == input['host']['name'] }
       end
 
       def humanized_name
