@@ -5,15 +5,6 @@ module Actions
       include ::Dynflow::Action::Cancellable
       include Actions::RemoteExecution::Helpers::LiveOutput
 
-      def plan(proxy, hostname, script, options = {})
-        options = { :effective_user => nil }.merge(options)
-        super(proxy, options.merge(:hostname => hostname, :script => script))
-      end
-
-      def proxy_action_name
-        'Proxy::RemoteExecution::Ssh::CommandAction'
-      end
-
       def on_data(data)
         if data[:result] == 'initialization_error'
           handle_connection_exception(data[:metadata][:exception_class]

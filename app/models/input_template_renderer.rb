@@ -92,11 +92,27 @@ class InputTemplateRenderer
     input_values.merge(overrides)
   end
 
+  def ansible_input_hosts(name)
+    if @preview
+      "ansible_input_hosts(:#{name})"
+    elsif input = input_by_name(name)
+      search = input.value(self)
+      hosts = invocation.job_invocation.targeting.targeting_scope.search_for(search)
+      "[#{ hosts.map(&:hostname).join(', ') }]"
+    end
+  end
+
   def logger
     Rails.logger
   end
 
   def find_by_name(collection, name)
     collection.detect { |i| i.name == name.to_s }
+  end
+
+  private
+
+  def input_by_name(name)
+    @template.template_inputs.where(:name => name.to_s).first || @template.template_inputs.detect { |i| i.name == name.to_s }
   end
 end
