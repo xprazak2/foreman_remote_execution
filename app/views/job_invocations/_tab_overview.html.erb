@@ -27,6 +27,9 @@
     <h5>
       <b><%= template_invocation.template.name %></b> <%= 'through' %> <%= template_invocation.template.provider.humanized_name %>
     </h5>
+      <p>
+        <%= link_to_ansible_job(template_invocation) if template_invocation.template.provider_type == "Ansible" %>
+      </p>
     <% target = template_invocation.targeting.hosts.with_os.first || template_invocation.targeting.hosts.first %>
     <%= _('Preview for target %s') % target.try(:name) || 'N/A' %>
 

@@ -20,7 +20,8 @@ module Actions
                     "or %{fallback_proxy} in settings") % settings if proxy.blank?
         template_sections = Hash[template_invocation.template.template.split('# SECTION ').reject(&:empty?).map { |p| p.split("\n", 2) }]
         expected_sections = %w[HOST_VARS ROLES GROUP_VARS PLAYBOOK]
-        if missing_parts = (expected_sections - template_sections.keys) && !missing_parts.empty?
+        required_sections = %w[HOST_VARS PLAYBOOK]
+        if missing_parts = (required_sections - template_sections.keys) && !missing_parts.empty?
           raise _("Missing template sections: %s") % missing_parts.inspect
         end
 
@@ -46,7 +47,7 @@ module Actions
       end
 
       def render_section(template_invocation, template_sections, part, host = nil)
-        renderer = InputTemplateRenderer.new(template_invocation.template, host, template_invocation, template_sections[part])
+        renderer = InputTemplateRenderer.new(template_invocation.template, host, template_invocation, template_sections[part].to_s)
         playbook_data = renderer.render
         raise _("Failed rendering template section %s: %s") % [part, renderer.error_message] unless playbook_data
         YAML.load(playbook_data)
@@ -54,10 +55,8 @@ module Actions
 
       def prepare_inventory(host_vars, group_vars, roles)
         ret = ""
-        if host_vars
-          host_vars.each do |name, vars|
-            ret << "#{name} #{ vars.map { |k, v| %{#{ k }="#{ v }"} }.join(' ') }\n"
-          end
+        host_vars.each do |name, vars|
+          ret << "#{name} #{ vars.map { |k, v| %{#{ k }="#{ v }"} }.join(' ') }\n"
         end
         if roles
           roles.each do |name, hosts|
@@ -85,11 +84,13 @@ module Actions
       end
 
       def live_output
-        planned_actions(RunProxyAnsibleCommand).first.live_output
+        command_action = planned_actions(RunProxyAnsibleCommand).first
+        return [] unless command_action
+        command_action.live_output.select { |o| o['output_type'] != 'event' }
       end
 
       def humanized_name
-        _('Run %{job_name} on %{host}') % { :job_name => input[:job_name], :host => input[:host][:name] }
+        _('Run %{job_name}') % { :job_name => input[:job_name]}
       end
 
       def find_ip_or_hostname(host)

@@ -12,12 +12,13 @@
     <%= button_group(template_invocation_task_buttons(@template_invocation_task)) %>
   </div>
 </div>
+<% if @host %>
+  <h3><%= _('Target: ') %><%= link_to(@host.name, host_path(@host)) %></h3>
 
-<h3><%= _('Target: ') %><%= link_to(@host.name, host_path(@host)) %></h3>
-
-<div class="preview hidden">
-  <%= preview_box(@template_invocation, @host) %>
-</div>
+  <div class="preview hidden">
+    <%= preview_box(@template_invocation, @host) if @template_invocation %>
+  </div>
+<% end %>
 
 <div class="terminal" data-refresh-url="<%= template_invocation_path(@template_invocation) %>">
   <% if @error %>

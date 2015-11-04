@@ -1,0 +1,24 @@
+<%#
+kind: job_template
+name: Run Ansible Module - Ansible Default
+job_name: Run Ansible Module
+provider_type: Ansible
+template_inputs:
+- name: module
+  description: 'Module name'
+  input_type: user
+  required: true
+- name: args
+  description: The module arguments
+  input_type: user
+  required: false
+%>
+
+# SECTION HOST_VARS
+ansible_ssh_host: <%= @host.ip %>
+
+# SECTION PLAYBOOK
+- hosts: all
+  tasks:
+    - <%= input(:module) %>: <%= input(:args) %>
+

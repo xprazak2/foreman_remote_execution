@@ -132,6 +132,12 @@ module RemoteExecutionHelper
   end
   # rubocop:enable Metrics/AbcSize
 
+  def link_to_ansible_job(template_invocation)
+    ansible_task = template_invocation.job_invocation.last_task.sub_tasks.for_action_types(Actions::RemoteExecution::RunAnsibleJob.name).first
+    return unless ansible_task
+    link_to(_("Details"), hash_for_template_invocation_path(:id => ansible_task))
+  end
+
   def template_invocation_task_buttons(task)
     buttons = []
     if authorized_for(:permission => :view_foreman_tasks, :auth_object => task)

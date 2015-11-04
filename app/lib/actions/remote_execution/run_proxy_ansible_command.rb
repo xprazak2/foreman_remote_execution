@@ -11,11 +11,13 @@ module Actions
       end
 
       def on_data(data)
-        data['result'].select { |r| r["output_type"] == "event" }.group_by { |r| r["output"]["host"] }.each do |host, events|
-          if step = host_step(host)
-            world.event(step.execution_plan_id,
-                        step.id,
-                        ::Actions::ProxyAction::CallbackData.new(events))
+        if task.parent_task.respond_to?(:sub_tasks)
+          data['result'].select { |r| r["output_type"] == "event" }.group_by { |r| r["output"]["host"] }.each do |host, events|
+            if step = host_step(host)
+              world.event(step.execution_plan_id,
+                          step.id,
+                          ::Actions::ProxyAction::CallbackData.new(events))
+            end
           end
         end
         super(data)

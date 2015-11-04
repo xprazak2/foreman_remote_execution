@@ -1,0 +1,35 @@
+<%#
+kind: job_template
+name: Package Action - Ansible Default
+job_name: Package Action
+provider_type: Ansible
+template_inputs:
+- name: action
+  description: 'The package action: install, update, or remove'
+  input_type: user
+  required: true
+  options: "install\nupdate\nremove"
+- name: package
+  description: The name of the package, if any
+  input_type: user
+  required: false
+%>
+
+# SECTION HOST_VARS
+ansible_ssh_host: <%= @host.ip %>
+
+# SECTION PLAYBOOK
+<%-
+   package = input(:package).empty? ? '*' : input(:package)
+   state = case input(:action)
+           when 'install'
+             'present'
+           when 'update'
+             'latest'
+           when 'remove'
+             'absent'
+           end
+-%>
+- hosts: all
+  tasks:
+    - <%= input(:module) %>: name=<%= package %> state=<%= state %>

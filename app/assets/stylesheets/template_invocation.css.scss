@@ -15,11 +15,16 @@ fieldset.provider_form {
   }
 }
 
+#title_action {
+  height: 4em;
+}
+
 div.terminal {
   display: block;
   padding: 9.5px;
   margin: 0 0 10px;
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.428571429;
   word-break: break-all;
   word-wrap: break-word;
   color: rgba(255, 255, 255, 1);

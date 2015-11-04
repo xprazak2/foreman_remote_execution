@@ -21,11 +21,6 @@ module Actions
         ::Dynflow::Action::Rescue::Skip
       end
 
-      def failed_run?
-        output[:result] == 'initialization_error' ||
-          (exit_status && proxy_output[:exit_status] != 0)
-      end
-
       def exit_status
         proxy_output && proxy_output[:exit_status]
       end
