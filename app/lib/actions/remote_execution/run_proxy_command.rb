@@ -16,7 +16,6 @@ module Actions
         end
       end
 
-
       def rescue_strategy
         ::Dynflow::Action::Rescue::Skip
       end

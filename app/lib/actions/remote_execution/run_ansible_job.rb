@@ -43,7 +43,8 @@ module Actions
         link!(job_invocation)
         link!(template_invocation)
 
-        plan_action(RunProxyAnsibleCommand, proxy, inventory, playbook, { :connection_options => connection_options })
+        ansible_command = plan_action(RunProxyAnsibleCommand, proxy, inventory, playbook, { :connection_options => connection_options })
+        plan_action(ImportAnsibleEvents, :raw_data => ansible_command.output[:proxy_output][:result])
       end
 
       def render_section(template_invocation, template_sections, part, host = nil)
