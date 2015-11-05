@@ -20,12 +20,14 @@ module Actions
 
       def run(event = nil)
         case event
-          when nil
-            suspend
-          when ProxyAction::CallbackData
-            on_data(event.data)
-          else
-            raise "Unexpected event #{event.inspect}"
+        when nil
+          raise "Service restarted unexpectedly" if output[:started]
+          output[:started] = true
+          suspend
+        when ProxyAction::CallbackData
+          on_data(event.data)
+        else
+          raise "Unexpected event #{event.inspect}"
         end
       end
 
@@ -39,23 +41,30 @@ module Actions
       end
 
       def live_output
-        proxy_output = output[:proxy_output] || load_live_output
+        proxy_output = output.try(:[], :proxy_output) || load_live_output
         #require 'pry'; binding.pry if proxy_output.present?
         proxy_output.map do |out|
           output_data = out['output']['data']
-          invocation_data = output_data['invocation']
-          if invocation_data['module_name'] == 'setup'
-            result = 'gathering facts'
+          if output_data
+            invocation_data = output_data['invocation']
+            if invocation_data['module_name'] == 'setup'
+              result = 'gathering facts'
+            else
+              result = JSON.pretty_generate(output_data.except('invocation', 'verbose_always').to_hash)
+            end
+            out.merge('output' => "#{out['output']['category']}: #{invocation_data['module_name']} #{invocation_data['module_args']}: #{result}")
           else
-            result = output_data.except('invocation', 'verbose_always')
+            out
           end
-          out.merge('output' => "#{out['output']['category']}: #{invocation_data['module_name']} #{invocation_data['module_args']}: #{result}")
         end
       end
 
       def load_live_output
         run_ansible_job = task.parent_task.sub_tasks.where(label: "Actions::RemoteExecution::RunAnsibleJob").first.main_action
-        live_output = run_ansible_job.live_output
+        return [] unless run_ansible_job
+        proxy_command = run_ansible_job.planned_actions(RunProxyAnsibleCommand).first
+        return [] unless proxy_command
+        live_output = proxy_command.live_output
         return [] unless live_output
         live_output.select { |o| o["output_type"] == 'event' && o['output']['host'] == input['host']['name'] }
       end

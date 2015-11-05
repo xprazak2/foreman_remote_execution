@@ -24,7 +24,7 @@ module RemoteExecutionHelper
                       {:label => _('Failed'), :data => failed, :color => '#D9534F'},
                       {:label => _('Pending'), :data => pending, :color => '#DEDEDE'},
                       {:label => _('Cancelled'), :data => cancelled, :color => '#B7312D'}],
-                     options)
+                     options) + link_to_ansible_job(invocation.template_invocations.first)
     else
       content_tag(:h4, job_invocation_status(invocation))
     end

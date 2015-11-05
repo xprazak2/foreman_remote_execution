@@ -36,7 +36,7 @@ module Actions
       end
 
       def reformat_timestamp(raw_timestamp)
-        Time.at(raw_timestamp).strftime('%Y-%m-%d %H:%M:%S %f')
+        Time.at(raw_timestamp).strftime('%Y-%m-%d %H:%M:%S %L')
       end
 
       def import_facts(hostname, facts)

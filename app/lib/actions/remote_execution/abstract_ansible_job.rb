@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 module Actions
   module RemoteExecution
     class AbstractAnsibleJob < Actions::EntryAction
@@ -15,7 +17,11 @@ module Actions
       def live_output
         command_action = planned_actions(RunProxyAnsibleCommand).first
         return [] unless command_action
-        command_action.live_output.select { |o| o['output_type'] != 'event' }
+        ret = [{ 'output_type' => 'stdout',
+                 'output' => "Running Ansible job…",
+                 'timestamp' => task.started_at.to_i }]
+        ret.concat(command_action.live_output.select { |o| o['output_type'] != 'event' })
+        return ret
       end
 
       def humanized_name

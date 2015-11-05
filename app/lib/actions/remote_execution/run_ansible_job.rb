@@ -57,7 +57,7 @@ module Actions
       def prepare_inventory(host_vars, group_vars, roles)
         ret = ""
         host_vars.each do |name, vars|
-          ret << "#{name} #{ vars.map { |k, v| %{#{ k }="#{ v }"} }.join(' ') }\n"
+          ret << "#{name} #{ vars.map { |k, v| %{#{ k }="#{ v }"} }.join(' ') if vars }\n"
         end
         if roles
           roles.each do |name, hosts|
