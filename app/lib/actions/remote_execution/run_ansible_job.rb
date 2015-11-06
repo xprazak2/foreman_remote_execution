@@ -1,6 +1,6 @@
 module Actions
   module RemoteExecution
-    class RunAnsibleJob < Actions::EntryAction
+    class RunAnsibleJob < AbstractAnsibleJob
 
       def resource_locks
         :link
@@ -82,12 +82,6 @@ module Actions
 
       def humanized_output
         live_output.map { |line| line['output'].chomp }.join("\n")
-      end
-
-      def live_output
-        command_action = planned_actions(RunProxyAnsibleCommand).first
-        return [] unless command_action
-        command_action.live_output.select { |o| o['output_type'] != 'event' }
       end
 
       def humanized_name

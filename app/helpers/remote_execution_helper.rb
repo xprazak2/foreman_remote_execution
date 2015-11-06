@@ -257,4 +257,34 @@ module RemoteExecutionHelper
       end
     end
   end
+
+  def colorize_line(line)
+    @current_color ||= 'default'
+    out = %{<span class="console-format-#{@current_color}">}
+    parts = line.split(/({{{format.*?}}})/)
+    #require 'pry'; binding.pry
+    parts.each do |line|
+      if line.include?('{{{format')
+        if color_index = line[/color:(\d+)/, 1]
+          @current_color = case color_index
+                           when '31'
+                             'red'
+                           when '32'
+                             'green'
+                           when '33'
+                             'orange'
+                           when '0'
+                             'default'
+                           else
+                             'default'
+                           end
+          out << %{</span><span class="console-format-#{@current_color}">}
+        end
+      else
+        out << line
+      end
+    end
+    out << %{</span>}
+    out
+  end
 end

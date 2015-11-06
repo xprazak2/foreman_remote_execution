@@ -45,14 +45,22 @@ module Actions
         #require 'pry'; binding.pry if proxy_output.present?
         proxy_output.map do |out|
           output_data = out['output']['data']
+          color = 0
           if output_data
-            invocation_data = output_data['invocation']
+            if output_data['failed']
+              color = 31
+            elsif output_data['changed']
+              color = 33
+            else
+              color = 32
+            end
+            invocation_data = output_data['invocation'] || {}
             if invocation_data['module_name'] == 'setup'
               result = 'gathering facts'
             else
               result = JSON.pretty_generate(output_data.except('invocation', 'verbose_always').to_hash)
             end
-            out.merge('output' => "#{out['output']['category']}: #{invocation_data['module_name']} #{invocation_data['module_args']}: #{result}")
+            out.merge('output' => "#{out['output']['category']}: #{invocation_data['module_name']} #{invocation_data['module_args']}: {{{format color:#{color}}}}#{result}{{{format color:0}}}")
           else
             out
           end

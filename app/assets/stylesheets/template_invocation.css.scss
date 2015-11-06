@@ -66,4 +66,19 @@ div.terminal {
     z-index: 5;
   }
 
+  span.console-format-green {
+    color: green;
+  }
+
+  span.console-format-orange {
+    color: orange;
+  }
+
+  span.console-format-red {
+    color: red;
+  }
+
+  span.console-format-default {
+  }
+
 }
