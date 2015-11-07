@@ -19,7 +19,7 @@ template_inputs:
 ansible_ssh_host: <%= @host.ip %>
 
 # SECTION PLAYBOOK
-<%-
+<%
    package = input(:package).empty? ? '*' : input(:package)
    state = case input(:action)
            when 'install'
@@ -32,4 +32,4 @@ ansible_ssh_host: <%= @host.ip %>
 -%>
 - hosts: all
   tasks:
-    - <%= input(:module) %>: name=<%= package %> state=<%= state %>
+    - yum: name=<%= package %> state=<%= state %>

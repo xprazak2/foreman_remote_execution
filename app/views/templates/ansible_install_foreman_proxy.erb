@@ -1,0 +1,32 @@
+<%#
+kind: job_template
+name: Install Foreman Proxy via Ansible
+job_name: Install Foreman Proxy
+provider_type: Ansible
+template_inputs:
+- name: proxy_hosts
+  description: 'Scoped search of the proxy hosts'
+  input_type: user
+  required: true
+- name: foreman_hosts
+  description: 'Scoped search of the foreman hosts'
+  input_type: user
+  required: true
+%>
+
+# SECTION HOST_VARS
+<%- unless @host.name == 'localhost' -%>
+ansible_ssh_host: <%= @host.ip %>
+<%- end -%>
+
+# SECTION ROLES
+proxy: <%= ansible_input_hosts(:proxy_hosts) %>
+foreman: <%= ansible_input_hosts(:foreman_hosts) %>
+
+# SECTION GROUP_VARS
+foreman:
+  foreman_user: admin
+  foreman_password: changeme
+
+# SECTION PLAYBOOK
+- include: playbooks/proxy.yml

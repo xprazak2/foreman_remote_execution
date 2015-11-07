@@ -66,7 +66,7 @@ module Actions
         end
         if group_vars
           group_vars.each do |name, vars|
-            ret << "[#{name}:vars]\n#{ vars.map { |(k, v)| %{#{ k }="#{ v }"} }.join("\n") }}\n"
+            ret << "[#{name}:vars]\n#{ vars.map { |(k, v)| %{#{ k }="#{ v }"} }.join("\n") }\n"
           end
         end
         ret
