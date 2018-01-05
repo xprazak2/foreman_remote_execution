@@ -89,7 +89,7 @@ class JobInvocationsController < ApplicationController
     if params[:feature].present?
       JobInvocationComposer.for_feature(params[:feature], params[:host_ids], {})
     else
-      JobInvocationComposer.from_ui_params(params.merge(:triggering => triggering_params))
+      JobInvocationComposer.from_ui_params(triggering_params.merge(:triggering => triggering_params))
     end
   end
 end
